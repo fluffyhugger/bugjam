@@ -76,6 +76,57 @@ describe("projects", () => {
   });
 });
 
+describe("sites / apps (modules)", () => {
+  beforeEach(async () => {
+    await request(app)
+      .patch(`/api/projects/${project._id}`)
+      .set(auth(admin))
+      .send({ modules: ["Shop site", "Admin panel"] });
+  });
+
+  const report = (module) =>
+    request(app)
+      .post("/api/bugs")
+      .set(auth(admin))
+      .field("title", `Bug on ${module || "nothing"}`)
+      .field("severity", "Minor")
+      .field("priority", "Low")
+      .field("bugType", "Other")
+      .field("project", project._id.toString())
+      .field("module", module);
+
+  it("stores the module on the bug", async () => {
+    const res = await report("Shop site");
+    expect(res.body.bug.module).toBe("Shop site");
+  });
+
+  it("filters by module", async () => {
+    await report("Shop site");
+    await report("Admin panel");
+
+    const res = await request(app).get("/api/bugs?module=Shop%20site").set(auth(admin));
+    expect(res.body.bugs.map((b) => b.module)).toEqual(["Shop site"]);
+  });
+
+  it("counts bugs per module in stats, ignoring ones with no module", async () => {
+    await report("Shop site");
+    await report("Shop site");
+    await report("");
+
+    const res = await request(app).get("/api/bugs/stats").set(auth(admin));
+    expect(res.body.byModule).toEqual({ "Shop site": 2 });
+  });
+
+  it("records a module change on the timeline", async () => {
+    const bug = (await report("Shop site")).body.bug;
+    await request(app).patch(`/api/bugs/${bug._id}`).set(auth(admin)).field("module", "Admin panel");
+
+    const timeline = await request(app).get(`/api/bugs/${bug._id}/timeline`).set(auth(admin));
+    const entry = timeline.body.items.find((i) => i.field === "module");
+    expect(entry).toMatchObject({ from: "Shop site", to: "Admin panel" });
+  });
+});
+
 describe("listing", () => {
   beforeEach(async () => {
     for (let i = 0; i < 7; i++) {
@@ -119,7 +170,7 @@ describe("listing", () => {
   it("exports CSV with a header row per bug", async () => {
     const res = await request(app).get("/api/bugs/export.csv").set(auth(admin));
     const lines = res.text.trim().split("\n");
-    expect(lines[0]).toContain("bugId,project,title");
+    expect(lines[0]).toContain("bugId,project,module,title");
     expect(lines).toHaveLength(8); // header + 7 bugs
   });
 });
