@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="BugJam">
+  <rect width="256" height="256" fill="#141311"/>
+  <mask id="seam" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+    <rect width="256" height="256" fill="#fff"/>
+    <rect x="124.4" y="100.4" width="7.4" height="95.8" rx="3.7" fill="#000"/>
+  </mask>
+  <g mask="url(#seam)" fill="#EFE7D6" transform="translate(35.8 35.8) scale(0.9216)">
+    <circle cx="49" cy="13" r="13"/>
+    <circle cx="151" cy="13" r="13"/>
+    <rect y="44" width="200" height="156" rx="72.43" ry="78"/>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background-color: #fbf6ec;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  background-color: #fbf6ec;
+  background-image: radial-gradient(#16161622 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: #161616;
+}
+
+.btn-hard {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-ink bg-yolk px-5 py-2.5 font-bold shadow-hard transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-hard-lg active:translate-x-0 active:translate-y-0 active:shadow-hard-sm;
+}
+
+.card-hard {
+  @apply rounded-2xl border-2 border-ink bg-white shadow-hard;
+}
+
+.input-hard {
+  @apply w-full rounded-xl border-2 border-ink bg-white px-4 py-2.5 font-semibold shadow-hard-sm outline-none transition-all placeholder:font-medium placeholder:text-ink/40 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-hard focus:ring-4 focus:ring-yolk/60;
+}
+
+textarea.input-hard {
+  @apply resize-y leading-relaxed;
+}
+
+.label-hard {
+  @apply mb-1 block text-sm font-bold uppercase tracking-wide text-ink/70;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full border-2 border-ink px-3 py-1 text-xs font-bold shadow-hard-sm;
+}

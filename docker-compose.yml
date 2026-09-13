@@ -1,0 +1,28 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: bugtracker-mongo
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: bugtracker-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      # Values come from the root .env (gitignored), not from this file.
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+volumes:
+  mongo-data:
+  minio-data:
