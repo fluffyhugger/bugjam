@@ -1,6 +1,7 @@
 <template>
   <div>
     <div
+      id="file-dropzone"
       class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink bg-white p-8 text-center shadow-hard-sm transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard"
       :class="dragging ? '-translate-x-0.5 -translate-y-0.5 border-solid bg-yolk/40 shadow-hard' : ''"
       @dragover.prevent="dragging = true"
@@ -10,15 +11,15 @@
     >
       <span class="text-3xl">{{ dragging ? "🎯" : "📎" }}</span>
       <p class="font-bold">{{ dragging ? "Drop 'em!" : "Drag files here" }}</p>
-      <span class="btn-hard !bg-white !px-4 !py-1.5 text-sm">Browse files</span>
+      <span id="file-browse" class="btn-hard !bg-white !px-4 !py-1.5 text-sm">Browse files</span>
       <p class="text-xs font-semibold text-ink/50">
         Screenshots, logs, PDFs or video · up to {{ MAX_FILES }} files · 25MB each
       </p>
-      <input ref="fileInput" type="file" multiple class="hidden" @change="onSelect" />
+      <input id="file-input" ref="fileInput" type="file" multiple class="hidden" @change="onSelect" />
     </div>
 
-    <div v-if="picked.length" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div v-for="(p, i) in picked" :key="i" class="group relative">
+    <div v-if="picked.length" id="file-preview-list" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div v-for="(p, i) in picked" :key="i" :id="`file-preview-${i + 1}`" class="group relative">
         <img
           v-if="p.preview"
           :src="p.preview"
@@ -33,6 +34,7 @@
         </div>
         <span class="mt-1 block text-center text-[10px] font-semibold text-ink/50">{{ size(p.file.size) }}</span>
         <button
+          :id="`file-remove-${i + 1}`"
           type="button"
           class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-punch text-xs font-bold text-white shadow-hard-sm"
           @click="removeAt(i)"

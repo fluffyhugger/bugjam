@@ -1,6 +1,7 @@
 <template>
   <div ref="root" class="relative">
     <button
+      id="notification-bell"
       class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-ink bg-white text-lg shadow-hard-sm"
       :title="`${store.unreadCount} unread`"
       @click="open = !open"
@@ -8,6 +9,7 @@
       🔔
       <span
         v-if="store.unreadCount"
+        id="notification-badge"
         class="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-ink bg-punch px-1 text-[10px] font-black text-white"
       >
         {{ store.unreadCount > 9 ? "9+" : store.unreadCount }}
@@ -16,12 +18,14 @@
 
     <div
       v-if="open"
+      id="notification-panel"
       class="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-xl border-2 border-ink bg-white shadow-hard"
     >
       <div class="flex items-center justify-between border-b-2 border-ink px-3 py-2">
         <span class="font-display font-bold">Notifications</span>
         <button
           v-if="store.unreadCount"
+          id="notification-mark-all"
           class="text-xs font-bold underline"
           @click="store.markAllRead()"
         >
@@ -29,10 +33,11 @@
         </button>
       </div>
 
-      <ul v-if="store.items.length" class="max-h-80 overflow-auto">
+      <ul v-if="store.items.length" id="notification-list" class="max-h-80 overflow-auto">
         <li
           v-for="n in store.items"
           :key="n._id"
+          :id="`notification-item-${n._id}`"
           class="border-b-2 border-ink/10 last:border-b-0"
           :class="n.read ? '' : 'bg-yolk/25'"
         >
@@ -56,7 +61,7 @@
           </RouterLink>
         </li>
       </ul>
-      <p v-else class="px-3 py-6 text-center text-sm font-semibold text-ink/50">Nothing yet 🌱</p>
+      <p v-else id="notification-empty" class="px-3 py-6 text-center text-sm font-semibold text-ink/50">Nothing yet 🌱</p>
     </div>
   </div>
 </template>

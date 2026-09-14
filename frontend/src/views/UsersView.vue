@@ -6,6 +6,7 @@
       <div
         v-for="u in bugsStore.users"
         :key="u.id"
+        :id="`user-row-${u.id}`"
         class="flex flex-wrap items-center justify-between gap-3 p-4"
       >
         <div class="flex items-center gap-3">
@@ -16,17 +17,18 @@
             {{ initials(u.name) }}
           </span>
           <div>
-            <p class="font-bold">{{ u.name }}</p>
-            <p class="text-sm text-ink/60">{{ u.email }}</p>
+            <p :id="`user-name-${u.id}`" class="font-bold">{{ u.name }}</p>
+            <p :id="`user-email-${u.id}`" class="text-sm text-ink/60">{{ u.email }}</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <button class="btn-hard !bg-white !px-3 !py-1.5 text-xs" @click="resetPassword(u)">
+          <button :id="`user-reset-password-${u.id}`" class="btn-hard !bg-white !px-3 !py-1.5 text-xs" @click="resetPassword(u)">
             Reset password
           </button>
           <div class="w-44">
             <SelectHard
+              :id="`user-role-${u.id}`"
               :model-value="u.role"
               :options="roles"
               :colors="ROLE_COLORS"
@@ -36,9 +38,9 @@
         </div>
       </div>
 
-      <div v-if="issued" class="border-t-2 border-ink bg-yolk p-4">
+      <div v-if="issued" id="temp-password-panel" class="border-t-2 border-ink bg-yolk p-4">
         <p class="text-sm font-bold">Temporary password for {{ issued.name }}</p>
-        <p class="mt-1 font-mono text-lg font-black">{{ issued.tempPassword }}</p>
+        <p id="temp-password" class="mt-1 font-mono text-lg font-black">{{ issued.tempPassword }}</p>
         <p class="mt-1 text-xs font-semibold text-ink/70">
           Shown once — hand it over and have them change it under Account.
         </p>

@@ -2,15 +2,15 @@
   <div v-if="bug" class="mx-auto max-w-3xl space-y-6">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <span class="font-mono text-sm font-bold text-ink/50">{{ bug.bugId }}</span>
-        <h1 class="font-display text-3xl font-black">{{ bug.title }}</h1>
+        <span id="bug-detail-id" class="font-mono text-sm font-bold text-ink/50">{{ bug.bugId }}</span>
+        <h1 id="bug-detail-title" class="font-display text-3xl font-black">{{ bug.title }}</h1>
         <p class="mt-1 font-medium text-ink/60">
           Reported by {{ bug.reporter?.name }} on {{ new Date(bug.createdAt).toLocaleString() }}
         </p>
       </div>
       <div class="flex gap-2">
-        <RouterLink :to="{ name: 'bug-edit', params: { id: bug._id } }" class="btn-hard !bg-white">Edit</RouterLink>
-        <button v-if="auth.isElevated" class="btn-hard !bg-punch !text-white" @click="remove">Delete</button>
+        <RouterLink id="bug-detail-edit" :to="{ name: 'bug-edit', params: { id: bug._id } }" class="btn-hard !bg-white">Edit</RouterLink>
+        <button v-if="auth.isElevated" id="bug-detail-delete" class="btn-hard !bg-punch !text-white" @click="remove">Delete</button>
       </div>
     </div>
 
@@ -25,64 +25,66 @@
       <label class="label-hard">Status</label>
       <div v-if="auth.isElevated || !meta?.elevatedOnlyStatuses.includes(bug.status)" class="max-w-xs">
         <SelectHard
+          id="bug-detail-status"
           v-model="bug.status"
           :options="selectableStatuses || []"
           :colors="STATUS_COLORS"
           @change="(v) => updateField('status', v)"
         />
       </div>
-      <StatusBadge v-else :status="bug.status" />
+      <StatusBadge v-else id="bug-detail-status-readonly" :status="bug.status" />
     </div>
 
     <div class="card-hard p-5">
       <label class="label-hard">Assignee</label>
       <div v-if="auth.isElevated" class="max-w-xs">
         <SelectHard
+          id="bug-detail-assignee"
           v-model="assigneeId"
           :options="assigneeOptions"
           placeholder="Unassigned"
           @change="(v) => updateField('assignee', v)"
         />
       </div>
-      <p v-else class="font-semibold">{{ bug.assignee?.name || "Unassigned" }}</p>
+      <p v-else id="bug-detail-assignee-readonly" class="font-semibold">{{ bug.assignee?.name || "Unassigned" }}</p>
     </div>
 
     <div class="card-hard p-5">
       <h3 class="mb-2 font-display font-bold">Description</h3>
-      <p class="whitespace-pre-wrap font-medium">{{ bug.description || "—" }}</p>
+      <p id="bug-detail-description" class="whitespace-pre-wrap font-medium">{{ bug.description || "—" }}</p>
     </div>
 
     <div v-if="bug.stepsToReproduce?.length" class="card-hard p-5">
       <h3 class="mb-2 font-display font-bold">Steps to reproduce</h3>
-      <ol class="list-decimal space-y-1 pl-5 font-medium">
-        <li v-for="(s, i) in bug.stepsToReproduce" :key="i">{{ s }}</li>
+      <ol id="bug-detail-steps" class="list-decimal space-y-1 pl-5 font-medium">
+        <li v-for="(s, i) in bug.stepsToReproduce" :key="i" :id="`bug-detail-step-${i + 1}`">{{ s }}</li>
       </ol>
     </div>
 
     <div class="card-hard grid gap-4 p-5 sm:grid-cols-4">
       <div>
         <p class="label-hard">Project</p>
-        <p class="font-semibold">{{ bug.project?.key }} · {{ bug.project?.name }}</p>
+        <p id="bug-detail-project" class="font-semibold">{{ bug.project?.key }} · {{ bug.project?.name }}</p>
       </div>
       <div>
         <p class="label-hard">{{ bug.project?.key === "APP" ? "App" : "Website" }}</p>
-        <p class="font-semibold">{{ bug.module || "—" }}</p>
+        <p id="bug-detail-module" class="font-semibold">{{ bug.module || "—" }}</p>
       </div>
       <div>
         <p class="label-hard">Found in</p>
-        <p class="font-semibold">{{ bug.foundInVersion || "—" }}</p>
+        <p id="bug-detail-found-version" class="font-semibold">{{ bug.foundInVersion || "—" }}</p>
       </div>
       <div>
         <p class="label-hard">Fixed in</p>
-        <p class="font-semibold">{{ bug.fixedInVersion || "—" }}</p>
+        <p id="bug-detail-fixed-version" class="font-semibold">{{ bug.fixedInVersion || "—" }}</p>
       </div>
     </div>
 
-    <div v-if="bug.attachments?.length" class="card-hard p-5">
+    <div v-if="bug.attachments?.length" id="bug-detail-attachments" class="card-hard p-5">
       <h3 class="mb-3 font-display font-bold">Attachments</h3>
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div v-for="a in bug.attachments" :key="a.objectKey" class="relative">
-          <a :href="a.url" target="_blank" class="block">
+        <div v-for="(a, i) in bug.attachments" :key="a.objectKey" :id="`attachment-${i + 1}`" class="relative">
+          <a :id="`attachment-link-${i + 1}`" :href="a.url" target="_blank" class="block">
             <img
               v-if="isImage(a.mimeType, a.filename)"
               :src="a.url"
@@ -98,6 +100,7 @@
           </a>
           <p class="mt-1 text-center text-[10px] font-semibold text-ink/50">{{ formatBytes(a.size) }}</p>
           <button
+            :id="`attachment-delete-${i + 1}`"
             class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-punch text-xs font-bold text-white shadow-hard-sm"
             title="Delete attachment"
             @click="removeAttachment(a)"
@@ -110,8 +113,8 @@
 
     <div class="card-hard p-5">
       <h3 class="mb-3 font-display font-bold">Linked bugs</h3>
-      <ul v-if="bug.links?.length" class="mb-3 space-y-2">
-        <li v-for="l in bug.links" :key="l.bug?._id" class="flex items-center gap-2">
+      <ul v-if="bug.links?.length" id="bug-detail-links" class="mb-3 space-y-2">
+        <li v-for="l in bug.links" :key="l.bug?._id" :id="`linked-bug-${l.bug?.bugId}`" class="flex items-center gap-2">
           <span class="badge bg-white">{{ l.type }}</span>
           <RouterLink
             :to="{ name: 'bug-detail', params: { id: l.bug?._id } }"
@@ -119,24 +122,24 @@
           >
             {{ l.bug?.bugId }} — {{ l.bug?.title }}
           </RouterLink>
-          <button class="ml-auto text-xs font-bold underline" @click="unlink(l)">Remove</button>
+          <button :id="`link-remove-${l.bug?.bugId}`" class="ml-auto text-xs font-bold underline" @click="unlink(l)">Remove</button>
         </li>
       </ul>
-      <p v-else class="mb-3 text-sm font-semibold text-ink/50">Not linked to anything yet.</p>
+      <p v-else id="bug-detail-links-empty" class="mb-3 text-sm font-semibold text-ink/50">Not linked to anything yet.</p>
 
       <div class="flex flex-wrap items-end gap-2">
         <div class="w-40">
-          <SelectHard v-model="linkType" :options="linkTypes" />
+          <SelectHard id="link-type" v-model="linkType" :options="linkTypes" />
         </div>
-        <input v-model="linkTarget" class="input-hard !w-40" placeholder="BUG-0004" />
-        <button class="btn-hard !py-2 text-sm" :disabled="!linkTarget.trim()" @click="link">Link</button>
-        <p v-if="linkError" class="text-sm font-semibold text-punch">{{ linkError }}</p>
+        <input id="link-target" v-model="linkTarget" class="input-hard !w-40" placeholder="BUG-0004" />
+        <button id="link-submit" class="btn-hard !py-2 text-sm" :disabled="!linkTarget.trim()" @click="link">Link</button>
+        <p v-if="linkError" id="link-error" class="text-sm font-semibold text-punch">{{ linkError }}</p>
       </div>
     </div>
 
     <BugTimeline ref="timeline" :bug-id="bug._id" />
   </div>
-  <p v-else class="font-bold">Loading...</p>
+  <p v-else id="bug-detail-loading" class="font-bold">Loading...</p>
 </template>
 
 <script setup>
@@ -162,8 +165,8 @@ const selectableStatuses = computed(() =>
   auth.isElevated ? meta.value?.statuses : meta.value?.statuses?.filter((s) => !meta.value.elevatedOnlyStatuses.includes(s))
 );
 const assigneeOptions = computed(() => [
-  { value: "", label: "Unassigned" },
-  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name })),
+  { value: "", label: "Unassigned", idSlug: "unassigned" },
+  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name, idSlug: u.name })),
 ]);
 
 const bug = ref(null);

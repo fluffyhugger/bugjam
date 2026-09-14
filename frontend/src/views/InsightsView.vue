@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 class="font-display text-3xl font-black">QA insights 📊</h1>
+        <h1 id="insights-heading" class="font-display text-3xl font-black">QA insights 📊</h1>
         <p class="font-medium text-ink/60">Every bug across the team.</p>
       </div>
-      <button class="btn-hard !bg-white !py-2 text-sm" @click="showTables = !showTables">
+      <button id="insights-toggle-tables" class="btn-hard !bg-white !py-2 text-sm" @click="showTables = !showTables">
         {{ showTables ? "Hide data tables" : "Show data tables" }}
       </button>
     </div>
@@ -15,12 +15,12 @@
       <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="card-hard bg-yolk p-4">
           <p class="text-xs font-bold uppercase tracking-wide text-ink/70">Open bugs</p>
-          <p class="mt-1 font-display text-5xl font-black leading-none">{{ stats.open }}</p>
+          <p id="insights-open-count" class="mt-1 font-display text-5xl font-black leading-none">{{ stats.open }}</p>
           <p class="mt-1 text-xs font-semibold text-ink/60">of {{ stats.total }} reported</p>
         </div>
-        <StatTile label="Needs attention" :value="stats.critical" hint="P0 + P1 combined" />
-        <StatTile label="Done" :value="stats.done" hint="resolved, verified or closed" />
-        <StatTile label="Unassigned" :value="unassigned" hint="nobody picked these up" />
+        <StatTile id="insights-critical" label="Needs attention" :value="stats.critical" hint="P0 + P1 combined" />
+        <StatTile id="insights-done" label="Done" :value="stats.done" hint="resolved, verified or closed" />
+        <StatTile id="insights-unassigned" label="Unassigned" :value="unassigned" hint="nobody picked these up" />
       </section>
 
       <!-- trend -->
@@ -36,31 +36,31 @@
           <p class="mb-3 text-sm font-medium text-ink/60">
             Auto-calculated from severity × priority — click a level to see those bugs
           </p>
-          <BarsHard :items="levelItems" clickable @select="(i) => drillDown({ priorityLevel: i.label })" />
+          <BarsHard id="chart-levels" :items="levelItems" clickable @select="(i) => drillDown({ priorityLevel: i.label })" />
         </section>
 
         <section class="card-hard p-5">
           <h2 class="font-display text-lg font-bold">By status</h2>
           <p class="mb-3 text-sm font-medium text-ink/60">Where everything sits right now</p>
-          <BarsHard :items="statusItems" clickable @select="(i) => drillDown({ status: i.label })" />
+          <BarsHard id="chart-status" :items="statusItems" clickable @select="(i) => drillDown({ status: i.label })" />
         </section>
 
         <section class="card-hard p-5">
           <h2 class="font-display text-lg font-bold">By bug type</h2>
           <p class="mb-3 text-sm font-medium text-ink/60">What kind of bugs the team finds</p>
-          <BarsHard :items="typeItems" clickable @select="(i) => drillDown({ bugType: i.label })" />
+          <BarsHard id="chart-type" :items="typeItems" clickable @select="(i) => drillDown({ bugType: i.label })" />
         </section>
 
         <section v-if="moduleItems.length" class="card-hard p-5">
           <h2 class="font-display text-lg font-bold">By site / app</h2>
           <p class="mb-3 text-sm font-medium text-ink/60">Which product the bugs land on</p>
-          <BarsHard :items="moduleItems" clickable @select="(i) => drillDown({ module: i.label })" />
+          <BarsHard id="chart-module" :items="moduleItems" clickable @select="(i) => drillDown({ module: i.label })" />
         </section>
 
         <section class="card-hard p-5">
           <h2 class="font-display text-lg font-bold">Workload per person</h2>
           <p class="mb-3 text-sm font-medium text-ink/60">Bugs currently assigned</p>
-          <BarsHard :items="assigneeItems" clickable @select="drillDownAssignee" />
+          <BarsHard id="chart-assignee" :items="assigneeItems" clickable @select="drillDownAssignee" />
         </section>
       </div>
 
@@ -79,7 +79,7 @@
       </section>
 
       <!-- table view twin -->
-      <section v-if="showTables" class="card-hard space-y-6 p-5">
+      <section v-if="showTables" id="insights-tables" class="card-hard space-y-6 p-5">
         <h2 class="font-display text-lg font-bold">Data tables</h2>
         <div v-for="t in tables" :key="t.title">
           <h3 class="mb-2 text-sm font-bold uppercase tracking-wide text-ink/60">{{ t.title }}</h3>

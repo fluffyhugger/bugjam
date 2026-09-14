@@ -9,21 +9,21 @@
     <form class="card-hard w-full space-y-4 p-6" @submit.prevent="submit">
       <div>
         <label class="label-hard">Email</label>
-        <input v-model="email" type="email" required class="input-hard" placeholder="you@example.com" />
+        <input id="login-email" v-model="email" type="email" required class="input-hard" placeholder="you@example.com" />
       </div>
       <div>
         <label class="label-hard">Password</label>
-        <input v-model="password" type="password" required class="input-hard" placeholder="••••••••" />
+        <input id="login-password" v-model="password" type="password" required class="input-hard" placeholder="••••••••" />
       </div>
-      <p v-if="error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
-      <button type="submit" class="btn-hard w-full" :disabled="loading">
+      <p v-if="error" id="login-error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
+      <button id="login-submit" type="submit" class="btn-hard w-full" :disabled="loading">
         {{ loading ? "Logging in..." : "Log in" }}
       </button>
     </form>
 
     <p class="font-medium">
       New here?
-      <RouterLink to="/register" class="font-bold underline">Create an account</RouterLink>
+      <RouterLink id="login-register-link" to="/register" class="font-bold underline">Create an account</RouterLink>
     </p>
   </div>
 </template>

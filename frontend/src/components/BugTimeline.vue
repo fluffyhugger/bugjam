@@ -1,9 +1,9 @@
 <template>
-  <div class="card-hard p-5">
+  <div id="bug-timeline" class="card-hard p-5">
     <h3 class="mb-4 font-display font-bold">Activity & comments</h3>
 
-    <ol v-if="items.length" class="space-y-3">
-      <li v-for="item in items" :key="item._id">
+    <ol v-if="items.length" id="timeline-list" class="space-y-3">
+      <li v-for="item in items" :key="item._id" :id="`timeline-item-${item._id}`">
         <!-- activity: compact one-liner -->
         <div v-if="item.kind === 'activity'" class="flex items-start gap-2 text-sm">
           <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink/30" />
@@ -28,11 +28,12 @@
               {{ when(item.createdAt) }}<template v-if="item.editedAt"> · edited</template>
             </span>
             <span v-if="canModify(item)" class="ml-auto flex gap-2">
-              <button class="text-xs font-bold underline" @click="startEdit(item)">Edit</button>
-              <button class="text-xs font-bold underline" @click="remove(item)">Delete</button>
+              <button :id="`comment-edit-${item._id}`" class="text-xs font-bold underline" @click="startEdit(item)">Edit</button>
+              <button :id="`comment-delete-${item._id}`" class="text-xs font-bold underline" @click="remove(item)">Delete</button>
             </span>
             <button
               v-else-if="auth.isElevated"
+              :id="`comment-delete-${item._id}`"
               class="ml-auto text-xs font-bold underline"
               @click="remove(item)"
             >
@@ -41,26 +42,27 @@
           </div>
 
           <div v-if="editingId === item._id" class="mt-2 space-y-2">
-            <textarea v-model="editDraft" rows="3" class="input-hard"></textarea>
+            <textarea :id="`comment-edit-input-${item._id}`" v-model="editDraft" rows="3" class="input-hard"></textarea>
             <div class="flex gap-2">
-              <button class="btn-hard !py-1.5 text-sm" @click="saveEdit(item)">Save</button>
-              <button class="btn-hard !bg-white !py-1.5 text-sm" @click="editingId = null">Cancel</button>
+              <button :id="`comment-edit-save-${item._id}`" class="btn-hard !py-1.5 text-sm" @click="saveEdit(item)">Save</button>
+              <button :id="`comment-edit-cancel-${item._id}`" class="btn-hard !bg-white !py-1.5 text-sm" @click="editingId = null">Cancel</button>
             </div>
           </div>
-          <p v-else class="mt-2 whitespace-pre-wrap font-medium">{{ item.body }}</p>
+          <p v-else :id="`comment-body-${item._id}`" class="mt-2 whitespace-pre-wrap font-medium">{{ item.body }}</p>
         </div>
       </li>
     </ol>
-    <p v-else class="text-sm font-semibold text-ink/50">No activity yet.</p>
+    <p v-else id="timeline-empty" class="text-sm font-semibold text-ink/50">No activity yet.</p>
 
     <form class="mt-5 space-y-2" @submit.prevent="post">
       <textarea
+        id="comment-input"
         v-model="draft"
         rows="3"
         class="input-hard"
         placeholder="Add a comment — what did you find?"
       ></textarea>
-      <button type="submit" class="btn-hard" :disabled="posting || !draft.trim()">
+      <button id="comment-submit" type="submit" class="btn-hard" :disabled="posting || !draft.trim()">
         {{ posting ? "Posting..." : "Comment" }}
       </button>
     </form>

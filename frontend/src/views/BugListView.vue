@@ -2,54 +2,55 @@
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="font-display text-3xl font-black">{{ auth.isElevated ? "All team bugs 🐛" : "My bugs 🐛" }}</h1>
+        <h1 id="bug-list-heading" class="font-display text-3xl font-black">{{ auth.isElevated ? "All team bugs 🐛" : "My bugs 🐛" }}</h1>
         <p v-if="!auth.isElevated" class="font-medium text-ink/60">Bugs you reported or are assigned to.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button class="btn-hard !bg-white" @click="exportCsv">⬇ Export CSV</button>
-        <RouterLink to="/bugs/new" class="btn-hard !bg-punch !text-white">+ Report bug</RouterLink>
+        <button id="export-csv" class="btn-hard !bg-white" @click="exportCsv">⬇ Export CSV</button>
+        <RouterLink id="bug-list-report" to="/bugs/new" class="btn-hard !bg-punch !text-white">+ Report bug</RouterLink>
       </div>
     </div>
 
     <div class="card-hard grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-      <input v-model="filters.q" placeholder="Search id, title, steps..." class="input-hard" @input="debouncedFetch" />
-      <SelectHard v-model="filters.project" :options="projectOptions" @change="reset" />
-      <SelectHard v-model="filters.module" :options="moduleOptions" @change="reset" />
-      <SelectHard v-model="filters.status" :options="opts(meta?.statuses, 'Status')" :colors="STATUS_COLORS" @change="reset" />
-      <SelectHard v-model="filters.severity" :options="opts(meta?.severities, 'Severity')" :colors="SEVERITY_COLORS" @change="reset" />
-      <SelectHard v-model="filters.priority" :options="opts(meta?.priorities, 'Priority')" :colors="PRIORITY_COLORS" @change="reset" />
-      <SelectHard v-model="filters.priorityLevel" :options="opts(meta?.priorityLevels, 'Level')" :colors="LEVEL_COLORS" @change="reset" />
-      <SelectHard v-model="filters.bugType" :options="opts(meta?.bugTypes, 'Type')" @change="reset" />
-      <SelectHard v-model="sort" :options="sortOptions" @change="reset" />
+      <input id="filter-search" v-model="filters.q" placeholder="Search id, title, steps..." class="input-hard" @input="debouncedFetch" />
+      <SelectHard id="filter-project" v-model="filters.project" :options="projectOptions" @change="reset" />
+      <SelectHard id="filter-module" v-model="filters.module" :options="moduleOptions" @change="reset" />
+      <SelectHard id="filter-status" v-model="filters.status" :options="opts(meta?.statuses, 'Status')" :colors="STATUS_COLORS" @change="reset" />
+      <SelectHard id="filter-severity" v-model="filters.severity" :options="opts(meta?.severities, 'Severity')" :colors="SEVERITY_COLORS" @change="reset" />
+      <SelectHard id="filter-priority" v-model="filters.priority" :options="opts(meta?.priorities, 'Priority')" :colors="PRIORITY_COLORS" @change="reset" />
+      <SelectHard id="filter-level" v-model="filters.priorityLevel" :options="opts(meta?.priorityLevels, 'Level')" :colors="LEVEL_COLORS" @change="reset" />
+      <SelectHard id="filter-type" v-model="filters.bugType" :options="opts(meta?.bugTypes, 'Type')" @change="reset" />
+      <SelectHard id="filter-sort" v-model="sort" :options="sortOptions" @change="reset" />
     </div>
 
-    <div v-if="activeFilters.length" class="flex flex-wrap items-center gap-2">
+    <div v-if="activeFilters.length" id="active-filters" class="flex flex-wrap items-center gap-2">
       <span class="text-sm font-bold text-ink/60">Filtered by:</span>
-      <span v-for="f in activeFilters" :key="f.key" class="badge bg-white">
+      <span v-for="f in activeFilters" :key="f.key" :id="`filter-chip-${f.key}`" class="badge bg-white">
         {{ f.label }}
-        <button class="ml-2 font-black" title="remove" @click="clearFilter(f.key)">✕</button>
+        <button :id="`filter-chip-remove-${f.key}`" class="ml-2 font-black" title="remove" @click="clearFilter(f.key)">✕</button>
       </span>
-      <button class="text-sm font-bold underline" @click="clearAll">Clear all</button>
+      <button id="clear-all-filters" class="text-sm font-bold underline" @click="clearAll">Clear all</button>
     </div>
 
-    <div v-if="auth.isElevated && selected.length" class="card-hard flex flex-wrap items-center gap-3 bg-yolk p-4">
-      <span class="font-bold">{{ selected.length }} selected</span>
+    <div v-if="auth.isElevated && selected.length" id="bulk-bar" class="card-hard flex flex-wrap items-center gap-3 bg-yolk p-4">
+      <span id="bulk-selected-count" class="font-bold">{{ selected.length }} selected</span>
       <div class="w-44">
-        <SelectHard v-model="bulkStatus" :options="opts(meta?.statuses, 'Set status')" :colors="STATUS_COLORS" @change="applyStatus" />
+        <SelectHard id="bulk-status" v-model="bulkStatus" :options="opts(meta?.statuses, 'Set status')" :colors="STATUS_COLORS" @change="applyStatus" />
       </div>
       <div class="w-44">
-        <SelectHard v-model="bulkAssignee" :options="assigneeOptions" @change="applyAssignee" />
+        <SelectHard id="bulk-assignee" v-model="bulkAssignee" :options="assigneeOptions" @change="applyAssignee" />
       </div>
-      <button class="btn-hard !bg-punch !text-white !py-2 text-sm" @click="bulkDelete">Delete</button>
-      <button class="ml-auto text-sm font-bold underline" @click="selected = []">Clear selection</button>
+      <button id="bulk-delete" class="btn-hard !bg-punch !text-white !py-2 text-sm" @click="bulkDelete">Delete</button>
+      <button id="bulk-clear" class="ml-auto text-sm font-bold underline" @click="selected = []">Clear selection</button>
     </div>
 
-    <div v-if="bugsStore.loading" class="font-bold">Loading...</div>
+    <div v-if="bugsStore.loading" id="bug-list-loading" class="font-bold">Loading...</div>
     <template v-else-if="bugsStore.bugs.length">
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div id="bug-list" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div v-for="bug in bugsStore.bugs" :key="bug._id" class="relative">
           <input
             v-if="auth.isElevated"
+            :id="`bug-checkbox-${bug.bugId}`"
             type="checkbox"
             class="absolute -left-1 -top-1 z-10 h-5 w-5 cursor-pointer accent-punch"
             :checked="selected.includes(bug._id)"
@@ -60,14 +61,15 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm font-semibold text-ink/60">
+        <p id="pagination-info" class="text-sm font-semibold text-ink/60">
           Showing {{ bugsStore.bugs.length }} of {{ bugsStore.total }} · page {{ bugsStore.page }}/{{ bugsStore.pages }}
         </p>
         <div class="flex gap-2">
-          <button class="btn-hard !bg-white !py-2 text-sm" :disabled="bugsStore.page <= 1" @click="go(bugsStore.page - 1)">
+          <button id="page-prev" class="btn-hard !bg-white !py-2 text-sm" :disabled="bugsStore.page <= 1" @click="go(bugsStore.page - 1)">
             ← Prev
           </button>
           <button
+            id="page-next"
             class="btn-hard !bg-white !py-2 text-sm"
             :disabled="bugsStore.page >= bugsStore.pages"
             @click="go(bugsStore.page + 1)"
@@ -77,7 +79,7 @@
         </div>
       </div>
     </template>
-    <p v-else class="font-semibold text-ink/60">No bugs match those filters.</p>
+    <p v-else id="bug-list-empty" class="font-semibold text-ink/60">No bugs match those filters.</p>
   </div>
 </template>
 
@@ -118,8 +120,8 @@ const opts = (values, label) => [
   ...(values || []).map((v) => ({ value: v, label: v })),
 ];
 const projectOptions = computed(() => [
-  { value: "", label: "Project: all" },
-  ...bugsStore.projects.map((p) => ({ value: p._id, label: `${p.key} · ${p.name}` })),
+  { value: "", label: "Project: all", idSlug: "all" },
+  ...bugsStore.projects.map((p) => ({ value: p._id, label: `${p.key} · ${p.name}`, idSlug: p.key })),
 ]);
 // Narrow to the chosen project's sites/apps, or offer every one when no project is picked.
 const moduleOptions = computed(() => {
@@ -132,8 +134,8 @@ const moduleOptions = computed(() => {
   ];
 });
 const assigneeOptions = computed(() => [
-  { value: "", label: "Assign to..." },
-  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name })),
+  { value: "", label: "Assign to...", idSlug: "none" },
+  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name, idSlug: u.name })),
 ]);
 const sortOptions = [
   { value: "newest", label: "Sort: newest" },

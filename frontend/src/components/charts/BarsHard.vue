@@ -1,12 +1,13 @@
 <template>
   <div>
-    <div v-if="items.length" class="space-y-1.5">
+    <div v-if="items.length" :id="id || undefined" class="space-y-1.5">
       <div
         v-for="item in items"
         :key="item.label"
         tabindex="0"
         class="group grid grid-cols-[minmax(6rem,9rem)_1fr] items-center gap-3 rounded-lg px-1 py-1 outline-none focus-visible:ring-4 focus-visible:ring-yolk/60"
         :class="[hovered === item.label ? 'bg-ink/5' : '', clickable ? 'cursor-pointer' : '']"
+        :id="id ? `${id}-row-${slug(item.label)}` : undefined"
         :title="clickable ? `Show ${item.label} bugs` : undefined"
         @mouseenter="hovered = item.label"
         @mouseleave="hovered = null"
@@ -35,13 +36,13 @@
               }"
             />
           </span>
-          <span class="w-10 shrink-0 text-right text-sm font-bold tabular-nums text-ink">
+          <span :id="id ? `${id}-value-${slug(item.label)}` : undefined" class="w-10 shrink-0 text-right text-sm font-bold tabular-nums text-ink">
             {{ item.value }}
           </span>
         </span>
       </div>
     </div>
-    <p v-else class="py-6 text-center text-sm font-semibold text-ink/50">No data yet</p>
+    <p v-else :id="id ? `${id}-empty` : undefined" class="py-6 text-center text-sm font-semibold text-ink/50">No data yet</p>
   </div>
 </template>
 
@@ -53,7 +54,14 @@ const props = defineProps({
   items: { type: Array, required: true },
   accent: { type: String, default: CHART_ACCENT },
   clickable: { type: Boolean, default: false },
+  id: { type: String, default: "" },
 });
+
+const slug = (value) =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 const emit = defineEmits(["select"]);
 
 const hovered = ref(null);

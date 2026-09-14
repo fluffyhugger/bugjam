@@ -19,6 +19,7 @@
             <th class="py-1 pr-2 text-left text-xs font-bold text-ink/60">{{ s }}</th>
             <td v-for="p in columns" :key="p" class="p-0">
               <div
+                :id="`heat-${s.toLowerCase()}-${p.toLowerCase()}`"
                 tabindex="0"
                 class="flex h-11 items-center justify-center rounded-md text-sm font-bold tabular-nums outline-none transition-transform focus-visible:ring-4 focus-visible:ring-yolk/60"
                 :class="[hovered === `${s}|${p}` ? 'scale-105' : '', count(s, p) ? 'cursor-pointer' : '']"

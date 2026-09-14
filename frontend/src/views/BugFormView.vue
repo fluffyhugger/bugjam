@@ -1,22 +1,23 @@
 <template>
   <div class="mx-auto max-w-2xl space-y-6">
-    <h1 class="font-display text-3xl font-black">{{ isEdit ? "Edit bug" : "Report a bug 🐞" }}</h1>
+    <h1 id="bug-form-heading" class="font-display text-3xl font-black">{{ isEdit ? "Edit bug" : "Report a bug 🐞" }}</h1>
 
-    <form class="card-hard space-y-5 p-6" @submit.prevent="submit">
+    <form id="bug-form" class="card-hard space-y-5 p-6" @submit.prevent="submit">
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="label-hard">Project</label>
-          <SelectHard v-model="form.project" :options="projectOptions" placeholder="Select project" />
+          <SelectHard id="bug-project" v-model="form.project" :options="projectOptions" placeholder="Select project" />
         </div>
         <div>
           <label class="label-hard">{{ moduleLabel }}</label>
           <SelectHard
             v-if="moduleOptions.length > 1"
+            id="bug-module"
             v-model="form.module"
             :options="moduleOptions"
             placeholder="Not specified"
           />
-          <p v-else class="py-2.5 text-sm font-semibold text-ink/50">
+          <p v-else id="bug-module-empty" class="py-2.5 text-sm font-semibold text-ink/50">
             No {{ moduleLabel.toLowerCase() }} set up for this project yet.
           </p>
         </div>
@@ -24,28 +25,29 @@
 
       <div>
         <label class="label-hard">Title</label>
-        <input v-model="form.title" required class="input-hard" placeholder="Login button does nothing on Safari" />
+        <input id="bug-title" v-model="form.title" required class="input-hard" placeholder="Login button does nothing on Safari" />
       </div>
 
       <div>
         <label class="label-hard">Description</label>
-        <textarea v-model="form.description" rows="4" class="input-hard" placeholder="What happened?"></textarea>
+        <textarea id="bug-description" v-model="form.description" rows="4" class="input-hard" placeholder="What happened?"></textarea>
       </div>
 
       <div>
         <label class="label-hard">Steps to reproduce</label>
         <div v-for="(step, i) in form.stepsToReproduce" :key="i" class="mb-2 flex gap-2">
           <span class="flex h-10 w-8 shrink-0 items-center justify-center font-black">{{ i + 1 }}.</span>
-          <input v-model="form.stepsToReproduce[i]" class="input-hard" placeholder="Click the login button" />
-          <button type="button" class="btn-hard !bg-white px-3" @click="removeStep(i)">✕</button>
+          <input :id="`bug-step-${i + 1}`" v-model="form.stepsToReproduce[i]" class="input-hard" placeholder="Click the login button" />
+          <button :id="`bug-remove-step-${i + 1}`" type="button" class="btn-hard !bg-white px-3" @click="removeStep(i)">✕</button>
         </div>
-        <button type="button" class="font-bold underline" @click="addStep">+ Add step</button>
+        <button id="bug-add-step" type="button" class="font-bold underline" @click="addStep">+ Add step</button>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="label-hard">Severity</label>
           <SelectHard
+            id="bug-severity"
             v-model="form.severity"
             :options="meta?.severities || []"
             :colors="SEVERITY_COLORS"
@@ -55,6 +57,7 @@
         <div>
           <label class="label-hard">Priority</label>
           <SelectHard
+            id="bug-priority"
             v-model="form.priority"
             :options="meta?.priorities || []"
             :colors="PRIORITY_COLORS"
@@ -63,7 +66,7 @@
         </div>
       </div>
 
-      <div v-if="previewLevel" class="flex items-center gap-2 rounded-xl border-2 border-dashed border-ink p-3">
+      <div v-if="previewLevel" id="bug-triage-preview" class="flex items-center gap-2 rounded-xl border-2 border-dashed border-ink p-3">
         <span class="text-sm font-bold">Auto-calculated triage level:</span>
         <PriorityLevelBadge :level="previewLevel" />
       </div>
@@ -71,17 +74,18 @@
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="label-hard">Bug type</label>
-          <SelectHard v-model="form.bugType" :options="meta?.bugTypes || []" placeholder="Select type" />
+          <SelectHard id="bug-type" v-model="form.bugType" :options="meta?.bugTypes || []" placeholder="Select type" />
         </div>
         <div>
           <label class="label-hard">Assignee</label>
           <SelectHard
             v-if="canEditAssignee"
+            id="bug-assignee"
             v-model="form.assignee"
             :options="assigneeOptions"
             placeholder="Unassigned"
           />
-          <p v-else class="py-2.5 font-semibold">
+          <p v-else id="bug-assignee-readonly" class="py-2.5 font-semibold">
             {{ bugsStore.users.find((u) => u.id === form.assignee)?.name || "Unassigned" }}
           </p>
         </div>
@@ -91,11 +95,11 @@
       <div v-if="isEdit" class="grid gap-4 sm:grid-cols-2">
         <div>
           <label class="label-hard">Found in version</label>
-          <SelectHard v-model="form.foundInVersion" :options="versionOptions" placeholder="Not specified" />
+          <SelectHard id="bug-found-version" v-model="form.foundInVersion" :options="versionOptions" placeholder="Not specified" />
         </div>
         <div>
           <label class="label-hard">Fixed in version</label>
-          <SelectHard v-model="form.fixedInVersion" :options="versionOptions" placeholder="Not fixed yet" />
+          <SelectHard id="bug-fixed-version" v-model="form.fixedInVersion" :options="versionOptions" placeholder="Not fixed yet" />
         </div>
       </div>
 
@@ -103,6 +107,7 @@
         <label class="label-hard">Status</label>
         <SelectHard
           v-if="canEditStatus"
+          id="bug-status"
           v-model="form.status"
           :options="selectableStatuses || []"
           :colors="STATUS_COLORS"
@@ -115,9 +120,9 @@
         <FileDropzone @update:files="(f) => (files = f)" />
       </div>
 
-      <p v-if="error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
+      <p v-if="error" id="bug-form-error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
 
-      <button type="submit" class="btn-hard w-full" :disabled="submitting">
+      <button id="bug-submit" type="submit" class="btn-hard w-full" :disabled="submitting">
         {{ submitting ? "Saving..." : isEdit ? "Save changes" : "Submit bug" }}
       </button>
     </form>
@@ -151,11 +156,11 @@ const canEditStatus = computed(
   () => auth.isElevated || !meta.value?.elevatedOnlyStatuses.includes(form.status)
 );
 const assigneeOptions = computed(() => [
-  { value: "", label: "Unassigned" },
-  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name })),
+  { value: "", label: "Unassigned", idSlug: "unassigned" },
+  ...bugsStore.users.map((u) => ({ value: u.id, label: u.name, idSlug: u.name })),
 ]);
 const projectOptions = computed(() =>
-  bugsStore.projects.map((p) => ({ value: p._id, label: `${p.key} · ${p.name}` }))
+  bugsStore.projects.map((p) => ({ value: p._id, label: `${p.key} · ${p.name}`, idSlug: p.key }))
 );
 const selectedProject = computed(() => bugsStore.projects.find((p) => p._id === form.project));
 const versionOptions = computed(() => [

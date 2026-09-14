@@ -27,6 +27,7 @@ export · a charts dashboard for QA leads · role-based access.
 backend/           Express API — src/{models,controllers,routes,services,middleware,config}
   tests/           Vitest + Supertest suites
 frontend/          Vue 3 + Vite — src/{views,components,stores,utils}
+docs/test-ids.md   element id reference for automated UI tests
 docs/design/       logo handoff the brand mark was built from
 docs/screenshots/  images used in this README
 docker-compose.yml MongoDB + MinIO for local development
@@ -86,6 +87,13 @@ npm test          # vitest run
 Tests hit a real MongoDB (`bugtracker_vitest` on the Docker instance, dropped afterwards), so
 `docker compose up -d` must be running. MinIO is swapped for a stub via an alias in
 `vitest.config.js`, so no object storage is needed.
+
+## UI test automation
+
+Every element a test needs carries a stable `id`, unique per screen — see
+**[docs/test-ids.md](docs/test-ids.md)** for the full reference. Note that dropdowns are custom
+components, so a test opens the trigger (`#bug-severity`) and then clicks the option
+(`#bug-severity-option-critical`).
 
 ## Brand assets
 

@@ -9,25 +9,25 @@
     <form class="card-hard w-full space-y-4 p-6" @submit.prevent="submit">
       <div>
         <label class="label-hard">Name</label>
-        <input v-model="name" required class="input-hard" placeholder="Ada Lovelace" />
+        <input id="register-name" v-model="name" required class="input-hard" placeholder="Ada Lovelace" />
       </div>
       <div>
         <label class="label-hard">Email</label>
-        <input v-model="email" type="email" required class="input-hard" placeholder="you@example.com" />
+        <input id="register-email" v-model="email" type="email" required class="input-hard" placeholder="you@example.com" />
       </div>
       <div>
         <label class="label-hard">Password</label>
-        <input v-model="password" type="password" required minlength="6" class="input-hard" placeholder="At least 6 characters" />
+        <input id="register-password" v-model="password" type="password" required minlength="6" class="input-hard" placeholder="At least 6 characters" />
       </div>
-      <p v-if="error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
-      <button type="submit" class="btn-hard w-full" :disabled="loading">
+      <p v-if="error" id="register-error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
+      <button id="register-submit" type="submit" class="btn-hard w-full" :disabled="loading">
         {{ loading ? "Creating account..." : "Create account" }}
       </button>
     </form>
 
     <p class="font-medium">
       Already have an account?
-      <RouterLink to="/login" class="font-bold underline">Log in</RouterLink>
+      <RouterLink id="register-login-link" to="/login" class="font-bold underline">Log in</RouterLink>
     </p>
   </div>
 </template>

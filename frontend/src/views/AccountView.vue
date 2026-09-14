@@ -3,24 +3,24 @@
     <h1 class="font-display text-3xl font-black">Your account</h1>
 
     <div class="card-hard space-y-1 p-5">
-      <p class="font-bold">{{ auth.user?.name }}</p>
-      <p class="text-sm font-medium text-ink/60">{{ auth.user?.email }}</p>
-      <span class="badge mt-2 bg-white">{{ auth.user?.role }}</span>
+      <p id="account-name" class="font-bold">{{ auth.user?.name }}</p>
+      <p id="account-email" class="text-sm font-medium text-ink/60">{{ auth.user?.email }}</p>
+      <span id="account-role" class="badge mt-2 bg-white">{{ auth.user?.role }}</span>
     </div>
 
     <form class="card-hard space-y-4 p-6" @submit.prevent="submit">
       <h2 class="font-display text-lg font-bold">Change password</h2>
       <div>
         <label class="label-hard">Current password</label>
-        <input v-model="currentPassword" type="password" required class="input-hard" />
+        <input id="account-current-password" v-model="currentPassword" type="password" required class="input-hard" />
       </div>
       <div>
         <label class="label-hard">New password</label>
-        <input v-model="newPassword" type="password" required minlength="6" class="input-hard" />
+        <input id="account-new-password" v-model="newPassword" type="password" required minlength="6" class="input-hard" />
       </div>
-      <p v-if="error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
-      <p v-if="done" class="rounded-lg bg-mint/30 p-2 text-sm font-semibold">Password updated 🎉</p>
-      <button type="submit" class="btn-hard w-full" :disabled="saving">
+      <p v-if="error" id="account-error" class="rounded-lg bg-punch/20 p-2 text-sm font-semibold">{{ error }}</p>
+      <p v-if="done" id="account-success" class="rounded-lg bg-mint/30 p-2 text-sm font-semibold">Password updated 🎉</p>
+      <button id="account-submit" type="submit" class="btn-hard w-full" :disabled="saving">
         {{ saving ? "Saving..." : "Update password" }}
       </button>
     </form>

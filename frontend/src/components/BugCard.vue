@@ -1,16 +1,17 @@
 <template>
   <RouterLink
+    :id="`bug-card-${bug.bugId}`"
     :to="{ name: 'bug-detail', params: { id: bug._id } }"
     class="card-hard group flex flex-col gap-3 p-4 transition-transform hover:-translate-y-1 hover:-rotate-1"
   >
     <div class="flex items-start justify-between gap-2">
       <div>
-        <span class="font-mono text-xs font-bold text-ink/50">{{ bug.bugId }}</span>
+        <span :id="`bug-card-id-${bug.bugId}`" class="font-mono text-xs font-bold text-ink/50">{{ bug.bugId }}</span>
         <span v-if="bug.module" class="ml-2 text-xs font-bold text-ink/45">· {{ bug.module }}</span>
         <span v-if="bug.foundInVersion" class="ml-2 font-mono text-xs font-bold text-ink/40">
           v{{ bug.foundInVersion }}
         </span>
-        <h3 class="font-display text-lg font-bold leading-tight">{{ bug.title }}</h3>
+        <h3 :id="`bug-card-title-${bug.bugId}`" class="font-display text-lg font-bold leading-tight">{{ bug.title }}</h3>
       </div>
       <PriorityLevelBadge :level="bug.priorityLevel" class="shrink-0" />
     </div>

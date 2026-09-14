@@ -1,7 +1,9 @@
 <template>
   <div ref="root" class="relative">
     <button
+      :id="id"
       type="button"
+      :data-value="modelValue"
       class="flex w-full items-center justify-between gap-2 rounded-xl border-2 border-ink bg-white px-4 py-2.5 text-left font-semibold shadow-hard-sm transition-transform focus:outline-none focus:ring-4 focus:ring-yolk/60 disabled:opacity-50"
       :class="open ? '-translate-x-0.5 -translate-y-0.5 shadow-hard' : 'hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard'"
       :disabled="disabled"
@@ -25,12 +27,15 @@
 
     <ul
       v-if="open"
+      :id="id ? `${id}-list` : undefined"
       class="absolute z-30 mt-2 max-h-64 w-full overflow-auto rounded-xl border-2 border-ink bg-white shadow-hard"
       role="listbox"
     >
       <li
         v-for="(opt, i) in normalized"
         :key="opt.value"
+        :id="optionId(opt)"
+        :data-value="opt.value"
         role="option"
         :aria-selected="opt.value === modelValue"
         class="flex cursor-pointer items-center gap-2 border-b-2 border-ink/10 px-4 py-2.5 font-semibold last:border-b-0"
@@ -62,7 +67,19 @@ const props = defineProps({
   placeholder: { type: String, default: "Select..." },
   colors: { type: Object, default: null },
   disabled: { type: Boolean, default: false },
+  // Given an id, the trigger gets it and each option gets `<id>-option-<slug>`,
+  // so automated tests can open the dropdown and pick a value by id.
+  id: { type: String, default: "" },
 });
+
+const slug = (value) =>
+  String(value || "any")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "any";
+
+// An option may carry `idSlug` so ids read `-option-web` instead of a Mongo id.
+const optionId = (opt) => (props.id ? `${props.id}-option-${slug(opt.idSlug ?? opt.value)}` : undefined);
 const emit = defineEmits(["update:modelValue", "change"]);
 
 const root = ref(null);
